@@ -1,3 +1,13 @@
+/* ### Connection with Mongoose ### */
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+mongoose.connect('mongodb://localhost:27017/ApiNode');
+
+module.exports = {mongoose};
+
+/*
+### Example to connect with connector MongoDb ###
+
 const MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect('mongodb://localhost:27017/ApiNode', function(err,db) {
@@ -7,8 +17,7 @@ MongoClient.connect('mongodb://localhost:27017/ApiNode', function(err,db) {
 
     console.log('Connected to MongoDB server');
 
-    /*
-    
+    #####################    
     Testing database insert document
     db.collection('products').insertOne({
         name:"Television Samsung 4K",
@@ -22,7 +31,9 @@ MongoClient.connect('mongodb://localhost:27017/ApiNode', function(err,db) {
         }
 
         console.log(JSON.stringify(result.ops,undefined,2));
-    });*/
+    });
 
     db.close();
 });
+
+*/

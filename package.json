@@ -10,9 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.17.1",
+    "body-parser": "^1.15.2",
     "express": "^4.16.2",
     "lodash": "^4.17.4",
-    "mongodb": "^2.2.5"
+    "mongodb": "^2.2.5",
+    "mongoose": "^4.5.9"
   },
   "devDependencies": {
     "nodemon": "^1.14.6"
