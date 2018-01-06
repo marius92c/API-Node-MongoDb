@@ -35,6 +35,16 @@ app.post('/products', (req,res) => {
     });
 });
 
+app.get('/products', (req,res) => {
+  
+  Product.find().then((products) => {
+    res.send({products});
+  }, (e) => {
+    res.status(400).send(e);
+  });
+    
+});
+
 app.get('/', (req,res) => {
     res.send('Hello world!!!');
 });
