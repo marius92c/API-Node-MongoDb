@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var axios = require('axios');
 var {mongoose} = require('./config/mongodb-connect');
+var {ObjectID} = require('mongodb');
 var {Product} = require('./models/product');
 var {Customer} = require('./models/customer');
 
@@ -35,6 +36,7 @@ app.post('/products', (req,res) => {
     });
 });
 
+// Fetch list products
 app.get('/products', (req,res) => {
   
   Product.find().then((products) => {
@@ -43,6 +45,30 @@ app.get('/products', (req,res) => {
     res.status(400).send(e);
   });
     
+});
+
+// Fetch one product
+app.get('/products/:id', (req,res) => {
+
+  var productId = req.params.id;  
+
+  if ( !ObjectID.isValid(productId) ){
+      console.log(1);
+      res.status(404).send();
+  }
+
+  Product.findById(productId).then((product) => {
+     if(!product){
+         console.log(2);
+         return res.status(404).send();
+     }
+
+     res.send({product});
+
+  }).catch((e) => {
+      res.status(400).send(e);
+  })
+      
 });
 
 app.get('/', (req,res) => {
