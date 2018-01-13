@@ -99,6 +99,30 @@ app.patch('/products/:id', (req,res) => {
 
 });
 
+
+// Update partial product
+app.delete('/products/:id', (req,res) => {
+
+    var productId = req.params.id;
+
+    if ( !ObjectID.isValid(productId) ){
+        return res.status(404).send();
+    }
+
+    Product.findByIdAndRemove(productId, function(err, product) {
+
+        if (!product){
+            return res.status(404).send();
+        }
+        
+        res.send({product});
+
+    }).catch((e) => {
+        res.status(400).send();
+    })
+
+});
+
 app.get('/', (req,res) => {
     res.send('Hello world!!!');
 });
