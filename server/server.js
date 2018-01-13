@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var axios = require('axios');
+var _ = require('lodash');
 var {mongoose} = require('./config/mongodb-connect');
 var {ObjectID} = require('mongodb');
 var {Product} = require('./models/product');
@@ -67,8 +68,35 @@ app.get('/products/:id', (req,res) => {
 
   }).catch((e) => {
       res.status(400).send(e);
-  })
+  });
       
+});
+
+// Update partial product
+app.patch('/products/:id', (req,res) => {
+
+    var productId = req.params.id;
+
+    var body = _.pick(req.body, ['name','description','updated_at']);
+
+    if ( !ObjectID.isValid(productId) ){
+        return res.status(404).send();
+    }
+
+    body.updated_at = new Date();
+
+    Product.findByIdAndUpdate(productId, {$set: body}, {new: true}).then((product) => {
+
+        if (!product){
+            return res.status(404).send();
+        }
+
+        res.send({product});
+
+    }).catch((e) => {
+        res.status(400).send();
+    })
+
 });
 
 app.get('/', (req,res) => {
