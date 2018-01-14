@@ -11,6 +11,12 @@ var app = express();
 
 app.use(bodyParser.json());
 
+
+/** PRODUCTS 
+ * =======================
+*/
+
+
 // Insert products
 app.post('/products', (req,res) => {
   
@@ -120,6 +126,32 @@ app.delete('/products/:id', (req,res) => {
     }).catch((e) => {
         res.status(400).send();
     })
+
+});
+
+
+
+/** CUSTOMERS 
+ * =======================
+*/
+
+app.post('/customers', (req, res) => {
+
+    var body = _.pick(req.body, ['name','document_number','email','password','address']);
+    var customer = new Customer({
+        name: req.body.name,
+        document_number: req.body.document_number,
+        email: req.body.email,
+        password: req.body.password,
+        address: req.body.address,
+        created_at: new Date()
+    });
+
+    customer.save().then((customer) => {
+        res.send(customer);
+    }).catch((e) => {
+        res.status(400).send();
+    });
 
 });
 
