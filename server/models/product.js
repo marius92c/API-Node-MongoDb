@@ -21,8 +21,8 @@ var Product = mongoose.model('Product', {
         type: Date,
         required: false,
     },
-    customers: [{
-        customer_id: {
+    users: [{
+        user_id: {
             type: String,
             required: false,
         },

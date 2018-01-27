@@ -5,7 +5,7 @@ var _ = require('lodash');
 var {mongoose} = require('./config/mongodb-connect');
 var {ObjectID} = require('mongodb');
 var {Product} = require('./models/product');
-var {Customer} = require('./models/customer');
+var {User} = require('./models/user');
 
 var app = express();
 
@@ -20,11 +20,11 @@ app.use(bodyParser.json());
 // Insert products
 app.post('/products', (req,res) => {
   
-    var customersAux = [];
+    var usersAux = [];
 
-    if ( req.body.customers ){
-        req.body.customers.forEach(function(element) {
-            customersAux.push({customer_id: element.customer_id, amount: element.amount });
+    if ( req.body.users ){
+        req.body.users.forEach(function(element) {
+            usersAux.push({user_id: element.user_id, amount: element.amount });
         }, this);
     }
 
@@ -33,7 +33,7 @@ app.post('/products', (req,res) => {
         description: req.body.description,
         created_at: new Date(),
         updated_at: null,
-        customers: customersAux
+        user: usersAux
     });
 
     product.save().then((product) => {
@@ -131,14 +131,15 @@ app.delete('/products/:id', (req,res) => {
 
 
 
-/** CUSTOMERS 
+/** USERS 
  * =======================
 */
 
-app.post('/customers', (req, res) => {
+// Insert user
+app.post('/users', (req, res) => {
 
     var body = _.pick(req.body, ['name','document_number','email','password','address']);
-    var customer = new Customer({
+    var user = new User({
         name: req.body.name,
         document_number: req.body.document_number,
         email: req.body.email,
@@ -147,17 +148,17 @@ app.post('/customers', (req, res) => {
         created_at: new Date()
     });
 
-    customer.save().then((customer) => {
-        res.send(customer);
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then( (token) =>{
+        res.header('x-auth', token).send(user);
     }).catch((e) => {
-        res.status(400).send();
+        
+        res.status(400).send(e);
     });
 
 });
 
-app.get('/', (req,res) => {
-    res.send('Hello world!!!');
-});
 
 app.listen(3000, () => {
     console.log('Started on port 3000');
