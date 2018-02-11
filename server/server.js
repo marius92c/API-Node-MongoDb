@@ -6,6 +6,7 @@ var {mongoose} = require('./config/mongodb-connect');
 var {ObjectID} = require('mongodb');
 var {Product} = require('./models/product');
 var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 
@@ -60,13 +61,11 @@ app.get('/products/:id', (req,res) => {
   var productId = req.params.id;  
 
   if ( !ObjectID.isValid(productId) ){
-      console.log(1);
       res.status(404).send();
   }
 
   Product.findById(productId).then((product) => {
      if(!product){
-         console.log(2);
          return res.status(404).send();
      }
 
@@ -159,6 +158,9 @@ app.post('/users', (req, res) => {
 
 });
 
+app.get('/users/me', authenticate, (req,res) => {
+    res.send(req.user);
+});
 
 app.listen(3000, () => {
     console.log('Started on port 3000');

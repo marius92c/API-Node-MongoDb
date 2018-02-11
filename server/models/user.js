@@ -73,11 +73,30 @@ UserSchema.methods.generateAuthToken = function () {
 };
 
 // Method to return final response
-UserSchema.methods.toJSON = function () {
+/*UserSchema.methods.toJSON = function () {
     var user = this;
     var userObject = user.toObject();
 
     return _.pick(userObject, ['_id', 'email']);
+}*/
+
+UserSchema.statics.findByToken = function (token) {
+
+    var User = this;
+    var decodedToken;
+
+    try{
+        decodedToken = jwt.verify(token,'abcd1234!');
+    }catch(e){
+        return Promise.reject();
+    }
+
+    return User.findOne({
+        '_id': decodedToken._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
+    });
+
 }
 
 var User = mongoose.model('User',UserSchema);
