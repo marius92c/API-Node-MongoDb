@@ -74,16 +74,17 @@ UserSchema.methods.generateAuthToken = function () {
 };
 
 // Method to return final response
-/*UserSchema.methods.toJSON = function () {
+UserSchema.methods.toJSON = function () {
     var user = this;
     var userObject = user.toObject();
 
     return _.pick(userObject, ['_id', 'email']);
-}*/
+}
 
+// Method to find user by Token
 UserSchema.statics.findByToken = function (token) {
 
-    var User = this;
+    var user = this;
     var decodedToken;
 
     try{
@@ -92,7 +93,7 @@ UserSchema.statics.findByToken = function (token) {
         return Promise.reject();
     }
 
-    return User.findOne({
+    return user.findOne({
         '_id': decodedToken._id,
         'tokens.token': token,
         'tokens.access': 'auth'
@@ -100,6 +101,7 @@ UserSchema.statics.findByToken = function (token) {
 
 }
 
+// Method that encrypts the password with Hash before saving it in the database
 UserSchema.pre('save',function(next){
     var user = this;
 
@@ -113,6 +115,28 @@ UserSchema.pre('save',function(next){
     });
     
 });
+
+// Method that compares the user's credentials
+UserSchema.statics.findByCredentials = function (email, password) {
+  var User = this;
+
+  return User.findOne({email}).then((user) => {
+    if (!user) {
+      return Promise.reject();
+    }
+
+    return new Promise((resolve, reject) => {
+      // Use bcrypt.compare to compare password and user.password
+      bcrypt.compare(password, user.password, (err, res) => {
+        if (res) {
+          resolve(user);
+        } else {
+          reject();
+        }
+      });
+    });
+  });
+};
 
 var User = mongoose.model('User',UserSchema);
 

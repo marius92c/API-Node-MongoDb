@@ -137,7 +137,7 @@ app.delete('/products/:id', (req,res) => {
 // Insert user
 app.post('/users', (req, res) => {
 
-    var body = _.pick(req.body, ['name','document_number','email','password','address']);
+    var body = _.pick(req.body, ['email','password']);
     var user = new User({
         name: req.body.name,
         document_number: req.body.document_number,
@@ -152,14 +152,27 @@ app.post('/users', (req, res) => {
     }).then( (token) =>{
         res.header('x-auth', token).send(user);
     }).catch((e) => {
-        
         res.status(400).send(e);
     });
 
 });
 
+// Get information to user
 app.get('/users/me', authenticate, (req,res) => {
     res.send(req.user);
+});
+
+// Login User 
+app.post('/users/login', (req,res) => {
+    var body = _.pick(req.body, ['email','password']);
+
+    User.findByCredentials(body.email, body.password).then((user) => {
+    return user.generateAuthToken().then((token) => {
+      res.header('x-auth', token).send(user);
+    });
+  }).catch((e) => {
+    res.status(400).send();
+  });
 });
 
 app.listen(3000, () => {
