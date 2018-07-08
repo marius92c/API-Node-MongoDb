@@ -142,7 +142,55 @@ describe('DELETE /products/:id', () => {
 
     it('should return 404 if object id is invalid', (done) => {
         request(app)
-            .delete(`/products/abc1234`)
+            .delete('/products/abc1234')
+            .expect(404)
+            .end(done);
+    });
+
+});
+
+
+describe('PATCH /products/:id', () => {
+
+    it('should update the product', (done) => {
+        var hexId = products[0]._id.toHexString();
+        var userObject = {
+            name: "Test new product",
+            description: "Description new product",
+        };
+
+        request(app)
+            .patch(`/products/${hexId}`)
+            .send({name:userObject.name})
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.product.name).toBe(userObject.name);
+            })
+            .end(done);
+    });
+
+    it('should return 404 if product not found', (done) => {
+        var hexId = new ObjectID().toHexString();
+        var userObject = {
+            name: "Test new product",
+            description: "Description new product",
+        };
+
+        request(app)
+            .patch(`/products/${hexId}`)
+            .send({name:userObject.name})
+            .expect(404)
+            .end(done);
+    });
+
+    it('should return 404 if object id is invalid', (done) => {
+        var userObject = {
+            name: "Test new product",
+            description: "Description new product",
+        };
+        request(app)
+            .patch('/products/abc1234')
+            .send({name:userObject.name})
             .expect(404)
             .end(done);
     });
