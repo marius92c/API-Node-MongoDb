@@ -4,8 +4,19 @@ const request = require('supertest');
 const {app} = require('./../server');
 const {Product} = require('./../models/product');
 
+const products = [{
+    name: 'First test product',
+    description: 'Description of first test product'
+},
+{
+    name: 'Second test product',
+    description: 'Description of second test product'
+}];
+
 beforeEach((done) => {
-    Product.remove({}).then(() => done());
+    Product.remove({}).then(() => {
+        return Product.insertMany(products);
+    }).then(() => done());
 });
 
 describe('POST /products', () => {
@@ -28,7 +39,7 @@ describe('POST /products', () => {
                     return done(err);
                 }
 
-                Product.find().then((products) => {
+                Product.find(userObject).then((products) => {
                     expect(products.length).toBe(1);
                     expect(products[0].name).toBe(userObject.name);
                     done();
@@ -47,10 +58,22 @@ describe('POST /products', () => {
                 }
 
                 Product.find().then((products) => {
-                    expect(products.length).toBe(0);
+                    expect(products.length).toBe(2);
                     done();
                 }).catch((e) => done(e));
             });
     });
 
+});
+
+describe('GET /products', () => {
+    it('should get all products', (done) => {
+        request(app)
+            .get('/products')
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.products.length).toBe(2)
+            })
+            .end(done);
+    });
 });
