@@ -92,7 +92,7 @@ describe('GET /products/:id', () => {
             .end(done);
     });
 
-    it('sould return 404 if product not found', (done) => {
+    it('should return 404 if product not found', (done) => {
         var hexId = new ObjectID().toHexString();
 
         request(app)
@@ -101,9 +101,48 @@ describe('GET /products/:id', () => {
             .end(done);
     });
 
-    it('sould return 404 for non-object ids', (done) => {
+    it('should return 404 for non-object ids', (done) => {
         request(app)
             .get('/products/abc1234')
+            .expect(404)
+            .end(done);
+    });
+
+});
+
+describe('DELETE /products/:id', () => {
+    
+    it('should remove a product', (done) => {
+        var hexId = products[1]._id.toHexString();
+        request(app)
+            .delete(`/products/${hexId}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.product._id).toBe(hexId)
+            })
+            .end((err,res) => {
+                if(err){
+                    return done(err);
+                }
+
+                Product.findById(hexId).then((product) => {
+                    expect(product).toNotExist();
+                    done();
+                }).catch((e) => done());
+            });
+    });
+
+    it('should return 404 if product not found', (done) => {
+        var hexId = new ObjectID().toHexString();
+        request(app)
+            .delete(`/products/${hexId}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it('should return 404 if object id is invalid', (done) => {
+        request(app)
+            .delete(`/products/abc1234`)
             .expect(404)
             .end(done);
     });
