@@ -1,14 +1,16 @@
 const expect = require('expect');
 const request = require('supertest');
-
+const {ObjectID} = require('mongodb');
 const {app} = require('./../server');
 const {Product} = require('./../models/product');
 
 const products = [{
+    _id: new ObjectID(),
     name: 'First test product',
     description: 'Description of first test product'
 },
 {
+    _id: new ObjectID(),
     name: 'Second test product',
     description: 'Description of second test product'
 }];
@@ -76,4 +78,34 @@ describe('GET /products', () => {
             })
             .end(done);
     });
+});
+
+describe('GET /products/:id', () => {
+    
+    it('should return product doc', (done) => {
+        request(app)
+            .get(`/products/${products[0]._id.toHexString()}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.product.name).toBe(products[0].name);
+            })
+            .end(done);
+    });
+
+    it('sould return 404 if product not found', (done) => {
+        var hexId = new ObjectID().toHexString();
+
+        request(app)
+            .get(`/products/${hexId}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it('sould return 404 for non-object ids', (done) => {
+        request(app)
+            .get('/products/abc1234')
+            .expect(404)
+            .end(done);
+    });
+
 });
